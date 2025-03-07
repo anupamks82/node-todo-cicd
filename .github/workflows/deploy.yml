@@ -1,52 +1,51 @@
-name: CI/CD Deployment to Azure
+
+name: Build and Deploy Node.js App to Azure
 
 on:
   push:
     branches:
-      - main  # Change karein agar kisi aur branch par deploy karna ho
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Code
+      # Checkout the repository code
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Node.js (Agar Node App hai)
+      # Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: '18'  # Use the appropriate Node.js version
 
-      - name: Install Dependencies
+      # Install dependencies
+      - name: Install dependencies
         run: npm install
 
+      # Run tests (optional)
       - name: Run Tests
         run: npm test
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      # Build the application (if needed)
+      - name: Build Application
+        run: npm run build  # Modify this if your project requires a build step
 
+      # Login to Azure
       - name: Login to Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      # Deploy the app to Azure Web Apps
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: "your-azure-app-name"
+          app-name: "my-nodejs-app"  # Replace with your Azure Web App name
+          slot-name: "production"
           package: "."
-
-  local-run:
-    runs-on: self-hosted  # Local machine par GitHub runner hona zaroori hai
-    needs: deploy
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Start Local Server
-        run: npm start

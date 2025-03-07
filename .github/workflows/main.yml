@@ -1,5 +1,5 @@
 on:
   push:
     branches:
-      - main
+      - master
   workflow_dispatch:  # Ye line add karein taaki manual trigger enable ho
